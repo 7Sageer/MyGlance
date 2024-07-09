@@ -1,0 +1,12 @@
+pages:
+  - name: Probe
+    columns:
+      - size: full
+        widgets:
+        - type: iframe
+          title: Probe
+          source: https://zh.wikipedia.org
+          height: 1200
+server:
+  port: 8080
+  proxy-url: http://127.0.0.1:10809
