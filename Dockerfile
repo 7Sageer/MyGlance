@@ -1,20 +1,16 @@
-FROM golang:1.22-alpine AS builder
+FROM golang:1.23.1-alpine3.20 AS builder
 
 WORKDIR /app
-
-RUN apk add --no-cache git
-
-COPY . .
-
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o glance .
+COPY . /app
+RUN CGO_ENABLED=0 go build .
 
 FROM alpine:3.20
 
 WORKDIR /app
+COPY --from=builder /app/glance .
 
-COPY --from=builder /app/glance /app/glance
-RUN chmod +x /app/glance
+HEALTHCHECK --timeout=10s --start-period=60s --interval=60s \
+  CMD wget --spider -q http://localhost:8080/api/healthz
 
 EXPOSE 8080/tcp
-
-ENTRYPOINT ["/app/glance"]
+ENTRYPOINT ["/app/glance", "--config", "/app/config/glance.yml"]
